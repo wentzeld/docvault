@@ -422,6 +422,12 @@ export function DocList() {
       return n;
     });
 
+  // Collapse/expand every section at once. allCollapsed reflects current state so
+  // the single button flips its action and label.
+  const allCollapsed = sections.length > 0 && sections.every((s) => collapsedSections.has(s.label));
+  const collapseAll = () => setCollapsedSections(new Set(sections.map((s) => s.label)));
+  const expandAll = () => setCollapsedSections(new Set());
+
   const selectStyle: React.CSSProperties = { width: 'auto' };
 
   return (
@@ -572,6 +578,16 @@ export function DocList() {
               {sort === key ? (order === 'desc' ? ' ↓' : ' ↑') : ''}
             </button>
           ))
+        )}
+        {!search && sections.length > 0 && (
+          <button
+            className="btn btn-sm btn-secondary"
+            style={{ marginLeft: 'auto' }}
+            onClick={allCollapsed ? expandAll : collapseAll}
+            title={allCollapsed ? 'Expand every section' : 'Collapse every section'}
+          >
+            {allCollapsed ? '▸ Expand all' : '▾ Collapse all'}
+          </button>
         )}
       </div>
 
