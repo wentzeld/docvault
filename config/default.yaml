@@ -1,0 +1,54 @@
+# DocVault application configuration
+# All values can be overridden by DOCVAULT_* environment variables.
+# Env var naming: nested keys joined by _ and uppercased, prefixed with DOCVAULT_
+# Example: server.port → DOCVAULT_SERVER_PORT
+
+server:
+  host: "127.0.0.1"           # DOCVAULT_SERVER_HOST — bind address for Fastify
+  port: 3000                   # DOCVAULT_SERVER_PORT
+  log_level: "info"            # DOCVAULT_SERVER_LOG_LEVEL — trace|debug|info|warn|error
+  body_limit: 2097152          # DOCVAULT_SERVER_BODY_LIMIT — bytes, default 2MB
+
+database:
+  url: ""                      # DOCVAULT_DATABASE_URL — postgresql://user:pass@host:5432/dbname
+  pool_min: 2                  # DOCVAULT_DATABASE_POOL_MIN
+  pool_max: 10                 # DOCVAULT_DATABASE_POOL_MAX
+  pool_idle_timeout_ms: 30000  # DOCVAULT_DATABASE_POOL_IDLE_TIMEOUT_MS
+
+worker:
+  url: "http://127.0.0.1:8001" # DOCVAULT_WORKER_URL — Python worker HTTP endpoint
+  timeout_ms: 5000             # DOCVAULT_WORKER_TIMEOUT_MS — per-request timeout
+
+auth:
+  session_ttl_seconds: 604800  # DOCVAULT_AUTH_SESSION_TTL_SECONDS — 7 days
+  session_cookie_name: "docvault_session"  # DOCVAULT_AUTH_SESSION_COOKIE_NAME
+  secret_key: ""               # DOCVAULT_AUTH_SECRET_KEY — 32-byte hex, for AES-256-GCM
+
+search:
+  default_limit: 10            # DOCVAULT_SEARCH_DEFAULT_LIMIT
+  max_limit: 50                # DOCVAULT_SEARCH_MAX_LIMIT
+  rrf_k: 60                    # DOCVAULT_SEARCH_RRF_K
+  ef_search: 100               # DOCVAULT_SEARCH_EF_SEARCH
+
+embedding:
+  model: "nomic-ai/nomic-embed-text-v1.5"  # DOCVAULT_EMBEDDING_MODEL
+  model_path: "~/.cache/docvault/models"  # DOCVAULT_EMBEDDING_MODEL_PATH (override with an absolute path)
+  device: "cuda"               # DOCVAULT_EMBEDDING_DEVICE — cuda|cpu
+  batch_size: 16               # DOCVAULT_EMBEDDING_BATCH_SIZE
+  worker_port: 8001            # DOCVAULT_EMBEDDING_WORKER_PORT
+
+rate_limit:
+  max: 200                     # DOCVAULT_RATE_LIMIT_MAX — requests per window
+  time_window_ms: 60000        # DOCVAULT_RATE_LIMIT_TIME_WINDOW_MS
+
+jobs:
+  expireInSeconds: 120         # DOCVAULT_JOBS_EXPIRE_IN_SECONDS
+  retentionDays: 7             # DOCVAULT_JOBS_RETENTION_DAYS
+
+ui:
+  serve: true                  # DOCVAULT_UI_SERVE — whether Fastify serves the SPA
+  dist_path: "./dist/ui"       # DOCVAULT_UI_DIST_PATH
+
+lru_cache:
+  max_size: 1000               # DOCVAULT_LRU_CACHE_MAX_SIZE — markdown render cache entries
+  ttl_ms: 300000               # DOCVAULT_LRU_CACHE_TTL_MS — 5 minutes

@@ -1,0 +1,68 @@
+# DocVault — CPU-only Docker quickstart.
+#
+# This compose file runs Postgres (with pgvector), the API, and the embedding
+# worker on CPU. It is meant for trying DocVault out or for a small private
+# deployment, not as a tuned production setup.
+#
+# You MUST provide DOCVAULT_AUTH_SECRET_KEY (e.g. in a .env file next to this
+# compose file, or exported in your shell):
+#
+#     DOCVAULT_AUTH_SECRET_KEY=$(openssl rand -hex 32)
+#
+# Optionally set DOCVAULT_DB_PASSWORD (defaults to "changeme" — change it for
+# anything beyond local experimentation).
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: docvault
+      POSTGRES_PASSWORD: ${DOCVAULT_DB_PASSWORD:-changeme}
+      POSTGRES_DB: docvault
+    volumes:
+      - docvault-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docvault -d docvault"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DOCVAULT_DATABASE_URL: postgresql://docvault:${DOCVAULT_DB_PASSWORD:-changeme}@db:5432/docvault
+      DOCVAULT_AUTH_SECRET_KEY: ${DOCVAULT_AUTH_SECRET_KEY}
+      DOCVAULT_SERVER_HOST: 0.0.0.0
+      DOCVAULT_WORKER_URL: http://worker:8001
+    ports:
+      - "3000:3000"
+    # Apply SQL migrations (and ensure extensions) before starting the API.
+    command: ["./scripts/docker-entrypoint.sh"]
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DOCVAULT_DATABASE_URL: postgresql://docvault:${DOCVAULT_DB_PASSWORD:-changeme}@db:5432/docvault
+      DOCVAULT_EMBEDDING_DEVICE: cpu
+      DOCVAULT_WORKER_HOST: 0.0.0.0
+    volumes:
+      # Persist the downloaded embedding model across restarts.
+      - docvault-model-cache:/home/appuser/.cache/docvault
+    # No host port needed — the API reaches the worker over the compose network.
+    restart: unless-stopped
+
+volumes:
+  docvault-db-data:
+  docvault-model-cache:

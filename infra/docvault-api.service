@@ -1,0 +1,39 @@
+[Unit]
+# Template — placeholders (__DOCVAULT_USER__, __DOCVAULT_DIR__) are substituted by
+# scripts/install.sh at copy time. If installing by hand, replace them yourself.
+Description=DocVault API Server (Fastify)
+Documentation=https://github.com/your-org/docvault
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=__DOCVAULT_USER__
+Group=__DOCVAULT_USER__
+WorkingDirectory=__DOCVAULT_DIR__
+EnvironmentFile=__DOCVAULT_DIR__/.env
+ExecStart=/usr/bin/node \
+  --enable-source-maps \
+  dist/api/api/index.js
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=docvault-api
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=__DOCVAULT_DIR__
+PrivateTmp=true
+PrivateDevices=true
+
+# Resource limits
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

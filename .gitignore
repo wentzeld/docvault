@@ -1,0 +1,38 @@
+# Environment & secrets
+.env
+*.env.local
+
+# Build output
+dist/
+src/ui/dist/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.venv/
+worker/__pycache__/
+
+# Drizzle
+src/db/migrations/meta/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Backups
+backups/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

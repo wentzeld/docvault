@@ -1,0 +1,10 @@
+node_modules
+src/ui/node_modules
+dist
+src/ui/dist
+.git
+.env
+*.log
+__pycache__
+.venv
+backups

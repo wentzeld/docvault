@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/api",
+    "rootDir": "src"
+  },
+  "include": ["src/api/**/*", "src/db/**/*", "src/jobs/**/*", "src/cli/**/*", "src/config.ts"]
+}

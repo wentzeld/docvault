@@ -1,0 +1,59 @@
+# DocVault — Tailscale-only HTTP
+# Caddy reverse proxy: binds on Tailscale interface, proxies to Fastify :3000
+# Plain HTTP is fine — Tailscale is WireGuard-encrypted at the network layer.
+#
+# Before starting Caddy:
+#   Replace 100.x.x.x with your actual Tailscale IP: tailscale ip -4
+
+{
+  auto_https off
+  admin off
+}
+
+# Bind to Tailscale IP only — port 80
+http://100.x.x.x:80 {
+  bind 100.x.x.x
+
+  # Block all requests NOT from Tailscale CIDR ranges
+  @not_tailscale {
+    not remote_ip 100.64.0.0/10 100.0.0.0/8 fd7a:115c:a1e0::/48
+  }
+  respond @not_tailscale "Access denied" 403 {
+    close
+  }
+
+  # Security headers (no HSTS since plain HTTP)
+  header {
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
+    -Server
+  }
+
+  # Proxy to Fastify API server
+  reverse_proxy 127.0.0.1:3000 {
+    header_up X-Real-IP {remote_host}
+
+    # Health check for upstream availability
+    health_uri /health
+    health_interval 15s
+    health_timeout 5s
+    health_status 200
+
+    transport http {
+      keepalive 30s
+      keepalive_idle_conns 10
+    }
+  }
+
+  # Access logging
+  log {
+    output file /var/log/caddy/docvault-access.log {
+      roll_size 50mb
+      roll_keep 5
+      roll_keep_for 720h
+    }
+    format json
+  }
+}

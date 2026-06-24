@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  node:
+    name: Node (API + UI)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck (lint)
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build API
+        run: npm run build
+
+      # The UI is a separate package with its own package-lock.json.
+      - name: Install UI dependencies
+        run: npm ci --prefix src/ui || npm install --prefix src/ui
+
+      - name: Typecheck UI
+        run: npx tsc --noEmit -p src/ui/tsconfig.json
+
+      - name: Build UI
+        run: npm run build:ui
+
+  python:
+    name: Python worker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Lint the worker, but don't fail CI on style issues.
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Ruff (non-blocking)
+        run: ruff check worker/ || true
+
+      # Heavy ML deps (torch, sentence-transformers) are NOT installed in CI.
+      # We only verify the worker modules compile.
+      - name: Compile worker sources
+        run: python -m py_compile worker/*.py

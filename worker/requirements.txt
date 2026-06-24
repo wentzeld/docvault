@@ -1,0 +1,7 @@
+sentence-transformers>=2.7.0
+psycopg[binary]>=3.1.19
+aiohttp>=3.9.5
+numpy>=1.26.4
+python-dotenv>=1.0.1
+# torch installed separately with CUDA wheel:
+# pip install torch --index-url https://download.pytorch.org/whl/cu121
