@@ -15,7 +15,7 @@ there. We support the latest released `1.x` line.
 Please report security vulnerabilities **privately** — do not open a public
 GitHub issue for them.
 
-Email: **security@your-domain.example**
+Email: **iseearedduck at duck dot com**
 
 > Maintainers: replace the address above with a real, monitored security
 > contact before publishing this repository.
