@@ -16,7 +16,7 @@ const CreateDocSchema = z.object({
   project: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/),
   tags: z.array(z.string().max(50)).max(20).optional().default([]),
   agent_id: z.string().optional(),
-  metadata: z.record(z.unknown()).optional().default({}),
+  metadata: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
 const UpdateDocSchema = z.object({
@@ -25,7 +25,7 @@ const UpdateDocSchema = z.object({
   type: z.enum(DocTypeValues).optional(),
   project: z.string().min(1).max(80).regex(/^[a-z0-9-]+$/).optional(),
   tags: z.array(z.string().max(50)).max(20).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   workflow_status: z.enum(WorkflowStatusValues).optional(),
   version: z.number().int().positive().optional(),
 });

@@ -5,6 +5,8 @@ Description=DocVault API Server (Fastify)
 Documentation=https://github.com/your-org/docvault
 After=network.target postgresql.service
 Requires=postgresql.service
+StartLimitIntervalSec=60s
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -18,8 +20,6 @@ ExecStart=/usr/bin/node \
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 RestartSec=5s
-StartLimitIntervalSec=60s
-StartLimitBurst=5
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=docvault-api

@@ -48,7 +48,9 @@ export async function buildApp() {
       },
     },
     bodyLimit: config.server.body_limit,
-    trustProxy: 1,
+    // Only the local Caddy proxy (loopback) may set X-Forwarded-For; hop-count trust is
+    // disabled in Fastify 5.12+ because it cannot validate the immediate peer.
+    trustProxy: ['127.0.0.1', '::1'],
   });
 
   // Plugins

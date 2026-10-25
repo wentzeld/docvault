@@ -6,6 +6,9 @@ Description=DocVault Embedding Worker (Python)
 Documentation=https://github.com/your-org/docvault
 After=network.target postgresql.service
 Requires=postgresql.service
+# Allow up to 5 restarts in 60 seconds before pausing
+StartLimitIntervalSec=60s
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -19,9 +22,6 @@ Environment=CUDA_VISIBLE_DEVICES=0
 ExecStart=__DOCVAULT_VENV__/bin/python main.py
 Restart=on-failure
 RestartSec=10s
-# Allow up to 5 restarts in 60 seconds before pausing
-StartLimitIntervalSec=60s
-StartLimitBurst=5
 # Give the model time to load before systemd marks it failed
 TimeoutStartSec=120
 StandardOutput=journal
